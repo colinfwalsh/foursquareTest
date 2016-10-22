@@ -10,6 +10,12 @@ import Foundation
 
 struct FoursquareAPIClient {
     
+    /*******************************
+     
+     This class handles the communication with the FourSquare API, along with parsing the data into usable objects
+     
+     *******************************/
+    
     func getCurrentDate () -> String{
         
         /*******************************
@@ -32,6 +38,12 @@ struct FoursquareAPIClient {
     
     func getPhotoData (venueId: String, completion: @escaping (NSDictionary) -> ()) {
         
+        /*******************************
+ 
+        Pulls data from the FourSquare API for photos in a given venue.  Takes a venue ID String as an argument to pass into the request
+ 
+        *******************************/
+        
         let tempOATH = "4A4ZTW0LI5PCZAO0VMCDZQQUAABD52FDLPGEGB4HKUQRMFNO"
         
         guard let url = URL(string: "https://api.foursquare.com/v2/venues/\(venueId)/photos?oauth_token=\(tempOATH)&v=\(self.getCurrentDate())") else {print("Couldn't reach photo URL, try again")
@@ -46,6 +58,12 @@ struct FoursquareAPIClient {
     
     func getAPIData (_ lat: Double, long: Double, completion: @escaping (NSDictionary) -> ()) {
         
+        /*******************************
+         
+         Pulls data from the FourSquare API and passes a NSDictionary if data is able to be received.  Takes lat/long Doubles as arguments
+         
+         *******************************/
+        
         guard let url = URL(string: "https://api.foursquare.com/v2/venues/search?ll=\(lat),\(long)&client_id=\(Secrets().fourSquareClientID)&client_secret=\(Secrets().fourSquareClientSecret)&v=\(self.getCurrentDate())") else {
             print("URL NOT VALID")
             return}
@@ -58,6 +76,12 @@ struct FoursquareAPIClient {
     }
     
     func taskForSession (url: URL, completion: @escaping (NSDictionary) -> ()) {
+        
+        /*******************************
+         
+         This method is mainly for reducing redundency.  Takes a URL as an argument and then handles all the heavy lifting in regards to communication with the API, parsing into JSON and returning a readable NSDictionary
+         
+         *******************************/
         
         let session = URLSession.shared
         

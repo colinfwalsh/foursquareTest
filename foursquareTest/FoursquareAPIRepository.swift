@@ -11,12 +11,23 @@ import CoreLocation
 
 struct FoursquareAPIRepository {
     
+    /*******************************
+     
+     This class takes a NSDictionary of JSON data for the data received from the FourSquare API and stores all necessary/relevant data into properties
+     
+     *******************************/
+    
+    
+    // MARK: - Properties
+    
     var venueName: String!
     var venueId : String!
     var venueCategories: NSDictionary!
     var venueLocation: NSDictionary!
     var venueDistance: Int!
     var venueStats: NSDictionary!
+    
+    // MARK: - Initializers
     
     init(venueDictionary: NSDictionary) {
         guard let name = venueDictionary["name"] as? String

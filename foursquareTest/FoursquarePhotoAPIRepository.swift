@@ -9,10 +9,21 @@
 import Foundation
 
 struct FoursquarePhotoAPIRepository {
+    
+    /*******************************
+     
+     This class takes a NSDictionary of JSON data for photo data received from the FourSquare API and stores all necessary/relevant data into properties
+     
+     *******************************/
+    
+    // MARK: - Properties
+    
     var photoPrefix : String!
     var photoSuffix : String!
     var photoWidth : Int!
     var photoHeight : Int!
+    
+    // MARK: - Initializer
     
     init(photoDictionary: NSDictionary) {
         guard let prefix = photoDictionary["prefix"] as? String

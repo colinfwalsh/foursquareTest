@@ -11,6 +11,14 @@ import CoreLocation
 
 class IntroViewController: UIViewController, CLLocationManagerDelegate {
     
+    /*******************************
+     
+     This class takes a NSDictionary of JSON data for photo data received from the FourSquare API and stores all necessary/relevant data into properties
+     
+     *******************************/
+    
+    // MARK: - Properties
+    
     @IBOutlet var getCurrentLocationButton: UIBarButtonItem!
     @IBOutlet var queryTextField: UITextField!
     @IBOutlet var submitButton: UIButton!
@@ -28,6 +36,7 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
     var latitude : Double = 0.0
     var longitude : Double = 0.0
     
+    // MARK: - Functions
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,7 +49,7 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(IntroViewController.dismissKeyboard))
         
         view.addGestureRecognizer(tap)
-
+        
     }
     
     func dismissKeyboard() {
@@ -58,7 +67,7 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
             
             self.store.getRepositoriesWithCompletion((currentLocation?.coordinate.latitude)!, long: (currentLocation?.coordinate.longitude)!, completion: {
                 
-               
+                
                 if self.store.repositories.count == 0 {
                     print("*****************GETTING NO DATA***************")} else {
                     
@@ -124,15 +133,15 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
                 
                 self?.store.getRepositoriesWithCompletion((self?.latitude)!, long: (self?.longitude)!, completion: {
                     if self?.store.repositories.count == 0 {
+                        self?.activityIndicator.stopAnimating()
                         print("*****************GETTING NO DATA***************")} else {
-                        
-                        
                         
                         OperationQueue.main.addOperation({
                             self?.activityIndicator.stopAnimating()
                             self?.performSegue(withIdentifier: "introToVenueDisplay", sender: self)
                             
                         })
+                        
                     }
                 })
                 })

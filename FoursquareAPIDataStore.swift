@@ -11,6 +11,8 @@ import Foundation
 
 class FoursquareAPIDataStore: NSObject {
     
+    // MARK: - Properties
+    
     static let sharedInstance = FoursquareAPIDataStore()
     
     var repositories : [FoursquareAPIRepository] = []
@@ -21,10 +23,12 @@ class FoursquareAPIDataStore: NSObject {
     
     var photoArray : [FoursquarePhotoAPIRepository] = []
     
+    
+    //MARK: - Functions
+    
     func getPhotoRepositoriesWithCompletion(venueId: String, completion: @escaping () -> ()) {
         
-        
-        
+    
         self.callAPI.getPhotoData(venueId: venueId, completion: {(responseDictionary) in
             self.photoArray.removeAll()
             
