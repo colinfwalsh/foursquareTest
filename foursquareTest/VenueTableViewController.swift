@@ -11,16 +11,27 @@ import CoreLocation
 
 class VenueTableViewController: UITableViewController {
     
+    //MARK: - Properties
+    
+    //Data Store
     let store = FoursquareAPIDataStore.sharedInstance
     
+    //Loading wheel
     var activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+    //Placeholder properties for data to pass to the next viewController
     var nameToPass = ""
     var categoryNameToPass = ""
     var checkinCountToPass = ""
     var formattedAddressToPass = ""
+    
+    //Holds an array of downloaded images to the next view controller (if available)
     var arrayOfImagesToPass : [UIImage] = []
+    //Passes the coordinates of a given location to the next view controller to display it on the embedded mapView
     var coordinatesToPass: CLLocationCoordinate2D = CLLocationCoordinate2D.init()
     
+    
+    //MARK: - Methods
+    //ViewDidLoad essentially does further setup for the activityIndicator and adds it to the subView
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -78,7 +89,7 @@ class VenueTableViewController: UITableViewController {
         if let prefix = iconDictionary?["prefix"] {
             if let suffix = iconDictionary?["suffix"] {
                 iconURLString = "\(prefix)88\(suffix)"
-                
+                print(iconURLString)
                 
             }
         }
@@ -125,7 +136,7 @@ class VenueTableViewController: UITableViewController {
         if let address = repository.venueLocation["formattedAddress"] as? NSArray {
             for items in address {
                 let formattedItems = "\(items)\n"
-                    self.formattedAddressToPass.append(formattedItems)
+                self.formattedAddressToPass.append(formattedItems)
             }
             
             print(self.formattedAddressToPass)
