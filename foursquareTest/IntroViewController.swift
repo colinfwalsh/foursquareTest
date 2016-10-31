@@ -33,27 +33,92 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
     
     let locationManager = CLLocationManager()
     
-    var latitude : Double = 0.0
-    var longitude : Double = 0.0
+    var geocodedCoordinate = CLLocationCoordinate2D()
     
     // MARK: - Functions
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        activityIndicator.color = UIColor.gray
-        activityIndicator.center = view.center
-        
-        view.addSubview(activityIndicator)
-        
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(IntroViewController.dismissKeyboard))
-        
-        view.addGestureRecognizer(tap)
+        self.createActivityIndicator()
+        self.makeGestureRecognizer()
         
     }
     
     func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    func makeGestureRecognizer() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(IntroViewController.dismissKeyboard))
+        
+        view.addGestureRecognizer(tap)
+    }
+    
+    func createActivityIndicator() {
+        activityIndicator.color = UIColor.gray
+        activityIndicator.center = view.center
+        
+        view.addSubview(activityIndicator)
+    }
+    
+    func noDataRepositoryAction() {
+        OperationQueue.main.addOperation {
+            self.activityIndicator.stopAnimating()
+            self.cannotFindLocaitonAlert()
+        }
+    }
+    
+    func dataSuccessRepositoryAction() {
+        OperationQueue.main.addOperation({
+            self.activityIndicator.stopAnimating()
+            self.performSegue(withIdentifier: "introToVenueDisplay", sender: self)
+            
+        })
+    }
+    
+    func addAction() {
+        if self.alert.actions.count == 0 {
+            self.alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))}
+        else {
+            self.present(self.alert, animated: true, completion: nil)
+        }
+    }
+    
+    func locationServicesNotEnabledAlert() {
+        self.alert.title = "Location not found"
+        self.alert.message = "Location services not enabled.  Please enable them, or try again."
+        
+        self.addAction()
+        
+    }
+    
+    func cannotFindLocaitonAlert() {
+        self.alert.title = "Invalid Entry"
+        self.alert.message = "Oops!  We couldn't find that location! Please enter another location and try again."
+        
+        self.addAction()
+    }
+    
+    func callDataStoreWithLocation(location: CLLocationCoordinate2D) {
+        
+        self.activityIndicator.startAnimating()
+        
+        self.store.getRepositoriesWithCompletion(location.latitude, long: location.longitude, completion: {[weak self] in
+            if self?.store.repositories.count == 0 {
+                self?.noDataRepositoryAction()
+            } else {
+                self?.dataSuccessRepositoryAction()
+            }
+        })
+        
+    }
+    
+    func findMyLocation() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
     }
     
     @IBAction func getCurrentLocationPressed(_ sender: AnyObject) {
@@ -62,56 +127,13 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
         let currentLocation = self.locationManager.location
         
         if currentLocation != nil {
-            
-            self.activityIndicator.startAnimating()
-            
-            self.store.getRepositoriesWithCompletion((currentLocation?.coordinate.latitude)!, long: (currentLocation?.coordinate.longitude)!, completion: {[weak self] in
-                
-                if self?.store.repositories.count == 0 {
-                   
-                    
-                    OperationQueue.main.addOperation {
-                        self?.cannotFindLocaitonAlert()
-                        self?.activityIndicator.stopAnimating()
-                    }
-                    
-                    print("*****************GETTING NO DATA***************")} else {
-                    
-                    OperationQueue.main.addOperation({
-                        self?.activityIndicator.stopAnimating()
-                        self?.performSegue(withIdentifier: "introToVenueDisplay", sender: self)
-                        
-                    })
-                }
-                })
-            
+            if let coordinate = currentLocation?.coordinate {
+                self.callDataStoreWithLocation(location: coordinate)
+            }
         } else {
-            alert.title = "Location not found"
-            alert.message = "Location services not enabled.  Please enable them, or try again."
-            
-            if alert.actions.count == 0 {
-                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))}
-            self.present(alert, animated: true, completion: nil)
+            self.locationServicesNotEnabledAlert()
         }
         
-    }
-    
-    func cannotFindLocaitonAlert() {
-        alert.title = "Invalid Entry"
-        alert.message = "Oops!  We couldn't find that location! Please enter another location and try again."
-        
-        if alert.actions.count == 0 {
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        }
-        
-        self.present(alert, animated: true, completion: nil)
-    }
-    
-    func findMyLocation() {
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
     }
     
     @IBAction func submitButtonPressed(_ sender: AnyObject) {
@@ -124,44 +146,21 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
                     OperationQueue.main.addOperation({
                         self?.cannotFindLocaitonAlert()
                     })
-                    print("CANNOT FIND LOCATION")
                 }
                 
                 let placemark = placemarks?.last
                 
-                if let placemarkLat = placemark?.location?.coordinate.latitude {
-                    self?.latitude = placemarkLat as Double
+                if let coordinate = placemark?.location?.coordinate {
+                    self?.geocodedCoordinate = coordinate
                 }
                 
-                if let placemarkLong = placemark?.location?.coordinate.longitude {
-                    self?.longitude = placemarkLong as Double
+                if let coordinate = self?.geocodedCoordinate {
+                    self?.callDataStoreWithLocation(location: coordinate)
                 }
                 
-                self?.activityIndicator.startAnimating()
-                
-                self?.store.getRepositoriesWithCompletion((self?.latitude)!, long: (self?.longitude)!, completion: {
-                    if self?.store.repositories.count == 0 {
-                        
-                        
-                        OperationQueue.main.addOperation {
-                            self?.cannotFindLocaitonAlert()
-                            self?.activityIndicator.stopAnimating()
-                        }
-                        
-                        print("*****************GETTING NO DATA***************")} else {
-                        
-                        OperationQueue.main.addOperation({
-                            self?.activityIndicator.stopAnimating()
-                            self?.performSegue(withIdentifier: "introToVenueDisplay", sender: self)
-                            
-                        })
-                        
-                    }
-                })
-                })
+            })
         }
     }
-    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
