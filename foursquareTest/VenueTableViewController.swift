@@ -46,10 +46,6 @@ class VenueTableViewController: UITableViewController {
         super.didReceiveMemoryWarning()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        self.tableView.reloadData()
-    }
-    
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }

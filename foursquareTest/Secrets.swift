@@ -8,6 +8,9 @@
 
 import Foundation
 
+//Secrets File with the foursquare ID key and foursquare secret key
+    //In a real build this file would only be available locally - would not be committed to git
+
 struct Secrets {
     let fourSquareClientID = "15VRDDYNNUXQOJKE1FL1QSROEQMDW2MGG5NSVL4WHVZKCALV"
     let fourSquareClientSecret = "ORTYQQ5CCR30YKEPF0QY21DKXTCPKQVA0ZRSED3CTEWTVZFW"

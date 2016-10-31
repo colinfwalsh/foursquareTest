@@ -65,19 +65,25 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
             
             self.activityIndicator.startAnimating()
             
-            self.store.getRepositoriesWithCompletion((currentLocation?.coordinate.latitude)!, long: (currentLocation?.coordinate.longitude)!, completion: {
+            self.store.getRepositoriesWithCompletion((currentLocation?.coordinate.latitude)!, long: (currentLocation?.coordinate.longitude)!, completion: {[weak self] in
                 
-                
-                if self.store.repositories.count == 0 {
+                if self?.store.repositories.count == 0 {
+                   
+                    
+                    OperationQueue.main.addOperation {
+                        self?.cannotFindLocaitonAlert()
+                        self?.activityIndicator.stopAnimating()
+                    }
+                    
                     print("*****************GETTING NO DATA***************")} else {
                     
                     OperationQueue.main.addOperation({
-                        self.activityIndicator.stopAnimating()
-                        self.performSegue(withIdentifier: "introToVenueDisplay", sender: self)
+                        self?.activityIndicator.stopAnimating()
+                        self?.performSegue(withIdentifier: "introToVenueDisplay", sender: self)
                         
                     })
                 }
-            })
+                })
             
         } else {
             alert.title = "Location not found"
@@ -88,6 +94,17 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
             self.present(alert, animated: true, completion: nil)
         }
         
+    }
+    
+    func cannotFindLocaitonAlert() {
+        alert.title = "Invalid Entry"
+        alert.message = "Oops!  We couldn't find that location! Please enter another location and try again."
+        
+        if alert.actions.count == 0 {
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        }
+        
+        self.present(alert, animated: true, completion: nil)
     }
     
     func findMyLocation() {
@@ -105,16 +122,7 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
                 
                 if error != nil {
                     OperationQueue.main.addOperation({
-                        if let alert = self?.alert {
-                            alert.title = "Invalid Entry"
-                            alert.message = "Oops!  We couldn't find that location!"
-                            
-                            if alert.actions.count == 0 {
-                                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                            }
-                            
-                            self!.present(alert, animated: true, completion: nil)
-                        }
+                        self?.cannotFindLocaitonAlert()
                     })
                     print("CANNOT FIND LOCATION")
                 }
@@ -133,7 +141,13 @@ class IntroViewController: UIViewController, CLLocationManagerDelegate {
                 
                 self?.store.getRepositoriesWithCompletion((self?.latitude)!, long: (self?.longitude)!, completion: {
                     if self?.store.repositories.count == 0 {
-                        self?.activityIndicator.stopAnimating()
+                        
+                        
+                        OperationQueue.main.addOperation {
+                            self?.cannotFindLocaitonAlert()
+                            self?.activityIndicator.stopAnimating()
+                        }
+                        
                         print("*****************GETTING NO DATA***************")} else {
                         
                         OperationQueue.main.addOperation({
